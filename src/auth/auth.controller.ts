@@ -1,29 +1,28 @@
 import { Body, Controller, Post, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Response } from "express";
-import { SignInDto } from "./dto";
+import { SignInDto, SignUpDto } from "./dto";
 import { NotFoundError } from "@prisma/client/runtime";
 
 @Controller("auth")
 export class AuthController {
     constructor(
-        private readonly authService: AuthService
+        private readonly authService : AuthService
     ) {}
 
     @Post("signIn")
     async signIn(
-        @Res() response: Response,
-        @Body() signInDto: SignInDto
+        @Res() response : Response,
+        @Body() signInDto : SignInDto
     ) : Promise<Response> {
         try {
-            const { message } = await this.authService.signIn(signInDto);
+            const { message, token } = await this.authService.signIn(signInDto);
 
             return response.status(200).json({
-                message
+                message,
+                token
             });
         } catch (error) {
-            console.log(error);
-
             if (error instanceof NotFoundError) {
                 return response.status(401).json({
                     message: "Login ou senha inválidos."
@@ -38,7 +37,8 @@ export class AuthController {
 
     @Post("signUp")
     async signUp(
-        @Res() response: Response
+        @Res() response : Response,
+        @Body() signUpDto : SignUpDto
     ) : Promise<Response> {
         return response.status(200).json({
             message: "Sign up"
