@@ -6,7 +6,9 @@ import { NotFoundError } from "@prisma/client/runtime";
 
 @Controller("auth")
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService
+    ) {}
 
     @Post("signIn")
     async signIn(
@@ -20,6 +22,8 @@ export class AuthController {
                 message
             });
         } catch (error) {
+            console.log(error);
+
             if (error instanceof NotFoundError) {
                 return response.status(401).json({
                     message: "Login ou senha inválidos."
