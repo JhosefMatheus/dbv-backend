@@ -2,7 +2,7 @@ import { Body, Controller, Post, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Response } from "express";
 import { SignInDto, SignUpDto } from "./dto";
-import { NotFoundError } from "@prisma/client/runtime";
+import { NotFoundError, PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 @Controller("auth")
 export class AuthController {
@@ -40,8 +40,31 @@ export class AuthController {
         @Res() response : Response,
         @Body() signUpDto : SignUpDto
     ) : Promise<Response> {
-        return response.status(200).json({
-            message: "Sign up"
-        });
+        try {
+            const { message } = await this.authService.signUp(signUpDto);
+
+            return response.status(200).json({
+                message
+            });
+
+        } catch (error) {
+            if (error instanceof PrismaClientKnownRequestError) {
+                switch (error.code) {
+                    case "P2002":
+                        return response.status(401).json({
+                            message: error.message
+                        });
+                    
+                    default:
+                        return response.status(500).json({
+                            message: "Erro interno do servidor."
+                        });
+                }
+            }
+
+            return response.status(500).json({
+                message: "Erro interno do servidor."
+            });
+        }
     }
 }

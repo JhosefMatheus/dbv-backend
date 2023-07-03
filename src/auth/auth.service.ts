@@ -2,18 +2,24 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { SignInDto, SignUpDto } from "./dto";
 import { SignInResponse } from "./interface";
-import { User } from "@prisma/client";
+import { PendingRegister, Prisma, PrismaClient, User } from "@prisma/client";
 import * as crypto from "crypto-js";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { SignUpResponse } from "./interface/SignUp.interface";
 
 @Injectable()
 export class AuthService {
+    private readonly prisma : PrismaClient;
+
     constructor(
         private readonly prismaService : PrismaService,
         private readonly configService : ConfigService,
         private readonly jwtService : JwtService
-    ) {}
+    ) {
+        this.prisma = new PrismaClient();
+    }
 
     
     private hashPassword(
@@ -83,9 +89,56 @@ export class AuthService {
 
     async signUp(
         signUpDto : SignUpDto
-    ) : Promise<void> {
+    ) : Promise<SignUpResponse> {
         try {
+            const name : string = signUpDto.name;
+            const login : string = signUpDto.login;
+            const password : string = signUpDto.password;
 
+            const hashedPassword : string = this.hashPassword(password);
+
+            const user : User = await this.prismaService.user.findFirst({
+                where: {
+                    login: {
+                        equals: login
+                    }
+                }
+            });
+
+            const pendingRegister : PendingRegister = await this.prismaService.pendingRegister.findFirst({
+                where: {
+                    AND: [
+                        {
+                            login: {
+                                equals: login
+                            }
+                        },
+                        {
+                            deletedAt: {
+                                equals: null
+                            }
+                        }
+                    ]
+                }
+            });
+
+            if (user || pendingRegister) {
+                throw new PrismaClientKnownRequestError("Já existe um usuário com este login.", "P2002", Prisma.prismaVersion.client);
+            }
+
+            const [createdPendingRegister] = await this.prisma.$transaction([
+                this.prismaService.pendingRegister.create({
+                    data: {
+                        name,
+                        login,
+                        password: hashedPassword
+                    }
+                })
+            ]);
+
+            return {
+                message: "Pedido de registro cadastrado com sucesso. Espere seu diretor aprovar seu cadastro."
+            }
         } catch (error) {
             throw error;
         }

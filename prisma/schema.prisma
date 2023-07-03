@@ -28,3 +28,11 @@ model Role {
     updatedAt DateTime?
     users     User[]
 }
+
+model PendingRegister {
+    id        Int       @id @default(autoincrement())
+    name      String
+    login     String    @unique
+    password  String
+    createdAt DateTime  @default(now())
+}
