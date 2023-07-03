@@ -112,11 +112,6 @@ export class AuthService {
                             login: {
                                 equals: login
                             }
-                        },
-                        {
-                            deletedAt: {
-                                equals: null
-                            }
                         }
                     ]
                 }
