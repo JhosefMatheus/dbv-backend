@@ -3,7 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { SignInResponse } from "./response.ts";
 import { SignInDto } from "./dto/sign-in.dto.js";
 import { FuncService } from "../func/func.service.js";
-import { SeverityWarningEnum } from "../enums/SeverityWarning.enum";
+import { SeverityWarningEnum } from "../enum/SeverityWarning.enum.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 
 @Injectable()

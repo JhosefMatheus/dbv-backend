@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Response } from "express";
-import { SeverityWarningEnum } from "src/enums";
+import { SeverityWarningEnum } from "src/enum";
 import { SignInDto } from "./dto";
 import { SignInResponse } from "./response.ts";
 

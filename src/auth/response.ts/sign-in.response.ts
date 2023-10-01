@@ -1,4 +1,4 @@
-import { SeverityWarningEnum } from "src/enums";
+import { SeverityWarningEnum } from "src/enum";
 
 export interface SignInResponse {
     message: string;
