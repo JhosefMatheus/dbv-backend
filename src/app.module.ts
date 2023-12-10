@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
 import { TokenModule } from './token/token.module';
+import { GuardModule } from './guards/guard.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { TokenModule } from './token/token.module';
     UserModule,
     RoleModule,
     AuthModule,
-    TokenModule
+    TokenModule,
+    GuardModule
   ],
 })
 export class AppModule { }

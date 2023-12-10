@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/user/user.entity";
-import { EntityNotFoundError, Repository } from "typeorm";
-import { SignInDto } from "./dto";
-import { SignInResponse } from "./response";
+import { Repository } from "typeorm";
+import { SignInDto, SignUpDto } from "./dto";
+import { ISignInResponse } from "./response";
 import { TokenService } from "src/token/token.service";
 import { hashedText } from "src/funcs";
 
@@ -14,15 +14,24 @@ export class AuthService {
     private readonly tokenService: TokenService
   ) { }
 
-  async signIn(signInDto: SignInDto): Promise<SignInResponse> {
+  async signIn(signInDto: SignInDto): Promise<ISignInResponse> {
     try {
       const hashedPassword: string = hashedText(signInDto.password);
 
-      const user: User = await this.userRepository.findOneByOrFail({
-        email: signInDto.email,
-        password: hashedPassword,
-        deletedAt: null
+      const user: User = await this.userRepository.findOneOrFail({
+        where: {
+          email: signInDto.email,
+          password: hashedPassword,
+          deletedAt: null
+        },
+        relations: {
+          role: true
+        }
       });
+
+      if (!user) {
+        throw new UnauthorizedException("E-mail ou senha inválidos.");
+      }
 
       const payload: object = {
         id: user.id,
@@ -38,16 +47,29 @@ export class AuthService {
 
       return {
         message: "Usuário logado com sucesso.",
-        token
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          deletedAt: user.deletedAt
+        }
       }
     } catch (error: any) {
-      if (error instanceof EntityNotFoundError) {
-        throw new UnauthorizedException("E-mail ou senha inválidos.");
-      }
-
       throw error;
     }
   }
 
-  async signUp(): Promise<void> { }
+  async signUp(signUpDto: SignUpDto): Promise<void> {
+    try {
+      
+    } catch (error: any) {
+      console.log(error);
+
+      throw error;
+    }
+  }
 }

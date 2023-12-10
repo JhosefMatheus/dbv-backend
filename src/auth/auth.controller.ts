@@ -1,8 +1,10 @@
-import { Body, Controller, Post, Res, UnauthorizedException } from "@nestjs/common";
-import { Response } from "express";
-import { SignInDto } from "./dto";
+import { Body, Controller, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Response, Request } from "express";
+import { SignInDto, SignUpDto } from "./dto";
 import { AuthService } from "./auth.service";
-import { SignInResponse } from "./response";
+import { ISignInResponse } from "./response";
+import { JwtGuard } from "src/guards/jwt.guard";
+import { UserData } from "src/types";
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +18,7 @@ export class AuthController {
     @Res() res: Response
   ): Promise<Response> {
     try {
-      const signInResponse: SignInResponse = await this.authService.signIn(signInDto);
+      const signInResponse: ISignInResponse = await this.authService.signIn(signInDto);
 
       return res.status(200).json({
         ...signInResponse
@@ -34,11 +36,16 @@ export class AuthController {
     }
   }
 
+  @UseGuards(JwtGuard)
   @Post('sign-up')
   async signUp(
+    @Body() signUpDto: SignUpDto,
+    @Req() req: Request,
     @Res() res: Response
   ): Promise<Response> {
     try {
+      const userFromRequest: UserData = req['user'];
+
       return res.status(200).json({
         message: "Cadastro realizado com sucesso."
       });
