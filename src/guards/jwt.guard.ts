@@ -52,7 +52,7 @@ export class JwtGuard implements CanActivate {
 
       return true;
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
 
       return false;
     }

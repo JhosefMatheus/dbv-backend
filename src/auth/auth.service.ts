@@ -6,6 +6,7 @@ import { SignInDto, SignUpDto } from "./dto";
 import { ISignInResponse } from "./response";
 import { TokenService } from "src/token/token.service";
 import { hashedText } from "src/funcs";
+import { AlertVariant } from "src/enums";
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,7 @@ export class AuthService {
 
       return {
         message: "Usuário logado com sucesso.",
+        alertVariant: AlertVariant.SUCCESS,
         token,
         user: {
           id: user.id,

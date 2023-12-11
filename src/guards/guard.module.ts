@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TokenModule } from "src/token/token.module";
 import { User } from "src/user/user.entity";
 import { JwtGuard } from "./jwt.guard";
+import { SignUpGuard } from "./sign-up.guard";
 
 @Module({
   imports: [
@@ -10,10 +11,12 @@ import { JwtGuard } from "./jwt.guard";
     TokenModule
   ],
   providers: [
-    JwtGuard
+    JwtGuard,
+    SignUpGuard
   ],
   exports: [
-    JwtGuard
+    JwtGuard,
+    SignUpGuard
   ]
 })
 export class GuardModule { }

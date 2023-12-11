@@ -1,5 +1,6 @@
 import { User } from "src/user/user.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { RoleGrant } from "./role-grant.entity";
 
 @Entity()
 export class Role {
@@ -37,4 +38,10 @@ export class Role {
 
   @OneToMany(() => User, user => user.roleId)
   users: User[];
+
+  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGrantingId)
+  roleGrantings: RoleGrant[];
+
+  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGrantedId)
+  roleGranteds: RoleGrant[];
 }

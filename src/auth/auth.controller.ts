@@ -5,6 +5,8 @@ import { AuthService } from "./auth.service";
 import { ISignInResponse } from "./response";
 import { JwtGuard } from "src/guards/jwt.guard";
 import { UserData } from "src/types";
+import { AlertVariant } from "src/enums";
+import { SignUpGuard } from "src/guards/sign-up.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -26,17 +28,19 @@ export class AuthController {
     } catch (error: any) {
       if (error instanceof UnauthorizedException) {
         return res.status(401).json({
-          message: error.message
+          message: error.message,
+          alertVariant: AlertVariant.WARNING
         });
       }
 
       return res.status(500).json({
-        message: "Erro inesperado no servidor ao realizar login."
+        message: "Erro inesperado no servidor ao realizar login.",
+        alertVariant: AlertVariant.DANGER
       });
     }
   }
 
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard, SignUpGuard)
   @Post('sign-up')
   async signUp(
     @Body() signUpDto: SignUpDto,
