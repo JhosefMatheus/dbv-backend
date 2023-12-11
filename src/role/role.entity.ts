@@ -36,12 +36,12 @@ export class Role {
   })
   deletedAt: Date;
 
-  @OneToMany(() => User, user => user.roleId)
+  @OneToMany(() => User, user => user.role)
   users: User[];
 
-  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGrantingId)
+  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGranting)
   roleGrantings: RoleGrant[];
 
-  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGrantedId)
+  @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGranted)
   roleGranteds: RoleGrant[];
 }

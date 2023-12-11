@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, Res, UnauthorizedException, UseGuards } fr
 import { Response, Request } from "express";
 import { SignInDto, SignUpDto } from "./dto";
 import { AuthService } from "./auth.service";
-import { ISignInResponse } from "./response";
+import { ISignInResponse, ISignUpResponse } from "./response";
 import { JwtGuard } from "src/guards/jwt.guard";
 import { UserData } from "src/types";
 import { AlertVariant } from "src/enums";
@@ -48,14 +48,24 @@ export class AuthController {
     @Res() res: Response
   ): Promise<Response> {
     try {
-      const userFromRequest: UserData = req['user'];
+      const userSession: UserData = req['user'];
+
+      const signUpResponse: ISignUpResponse = await this.authService.signUp(userSession, signUpDto);
 
       return res.status(200).json({
-        message: "Cadastro realizado com sucesso."
+        ...signUpResponse
       });
     } catch (error: any) {
+      if (error instanceof UnauthorizedException) {
+        return res.status(401).json({
+          message: error.message,
+          alertVariant: AlertVariant.WARNING
+        });
+      }
+
       return res.status(500).json({
-        message: "Erro inesperado no servidor ao realizar cadastro."
+        message: "Erro inesperado no servidor ao realizar cadastro.",
+        alertVariant: AlertVariant.DANGER
       });
     }
   }

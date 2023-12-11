@@ -5,10 +5,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/user/user.entity";
 import { TokenModule } from "src/token/token.module";
 import { GuardModule } from "src/guards/guard.module";
+import { Role } from "src/role/role.entity";
+import { RoleGrant } from "src/role/role-grant.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Role, RoleGrant]),
     TokenModule,
     GuardModule
   ],
