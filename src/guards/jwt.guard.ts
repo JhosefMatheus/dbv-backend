@@ -1,10 +1,11 @@
-import { CanActivate, ExecutionContext } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TokenService } from "src/token/token.service";
 import { UserData } from "src/types";
-import { User } from "src/user/user.entity";
+import { User } from "../entities";
 import { Repository } from "typeorm";
 
+@Injectable()
 export class JwtGuard implements CanActivate {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -52,8 +53,6 @@ export class JwtGuard implements CanActivate {
 
       return true;
     } catch (error: any) {
-      console.log(error);
-
       return false;
     }
   }

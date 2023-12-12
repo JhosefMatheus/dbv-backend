@@ -1,6 +1,7 @@
-import { User } from "src/user/user.entity";
+import { User } from "./user.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RoleGrant } from "./role-grant.entity";
+import { RoleEndpoint } from "./role-endpoint.entity";
 
 @Entity()
 export class Role {
@@ -44,4 +45,7 @@ export class Role {
 
   @OneToMany(() => RoleGrant, roleGrant => roleGrant.roleGranted)
   roleGranteds: RoleGrant[];
+
+  @OneToMany(() => RoleEndpoint, roleEndpoint => roleEndpoint.role)
+  endpoints: RoleEndpoint[];
 }

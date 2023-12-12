@@ -1,15 +1,12 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/user/user.entity";
-import { DataSource, InsertResult, QueryFailedError, Repository } from "typeorm";
+import { DataSource, QueryFailedError, Repository } from "typeorm";
 import { SignInDto, SignUpDto } from "./dto";
 import { ISignInResponse, ISignUpResponse } from "./response";
 import { TokenService } from "src/token/token.service";
 import { hashedText } from "src/funcs";
-import { AlertVariant } from "src/enums";
 import { UserData } from "src/types";
-import { Role } from "src/role/role.entity";
-import { RoleGrant } from "src/role/role-grant.entity";
+import { User, Role, RoleGrant } from "src/entities";
 
 @Injectable()
 export class AuthService {
@@ -54,7 +51,6 @@ export class AuthService {
 
       return {
         message: "Usuário logado com sucesso.",
-        alertVariant: AlertVariant.SUCCESS,
         token,
         user: {
           id: user.id,
@@ -83,7 +79,7 @@ export class AuthService {
           deletedAt: null
         }
       });
-      
+
       const roleGrantFlag: boolean = await this.roleGrantRepository.exist({
         where: {
           roleGrantingId: userFromSession.role.id,
@@ -107,8 +103,7 @@ export class AuthService {
       await queryRunner.commitTransaction();
 
       return {
-        message: "Usuário cadastrado com sucesso.",
-        alertVariant: AlertVariant.SUCCESS
+        message: "Usuário cadastrado com sucesso."
       }
     } catch (error: any) {
       await queryRunner.rollbackTransaction();

@@ -1,4 +1,4 @@
-import { Role } from "src/role/role.entity";
+import { Role } from "../entities";
 
 export type UserData = {
   id: number;
