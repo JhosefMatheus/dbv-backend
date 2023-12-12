@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UserData } from "src/types";
 
@@ -24,6 +24,10 @@ export class TokenService {
 
       return payload;
     } catch (error: any) {
+      if (error.constructor.name === "JsonWebTokenError") {
+        throw new UnauthorizedException("Token inválido.");
+      }
+
       throw error;
     }
   }
