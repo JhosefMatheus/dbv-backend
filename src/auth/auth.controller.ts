@@ -4,7 +4,7 @@ import { SignInDto, SignUpDto } from "./dto";
 import { AuthService } from "./auth.service";
 import { ISignInResponse, ISignUpResponse } from "./response";
 import { JwtGuard } from "src/guards/jwt.guard";
-import { UserData } from "src/types";
+import { UserSignInData } from "src/types";
 import { RoleGuard } from "src/guards/role.guard";
 
 @Controller('auth')
@@ -45,13 +45,13 @@ export class AuthController {
     @Res() res: Response
   ): Promise<Response> {
     try {
-      const userSession: UserData = req['user'];
+      const userSession: UserSignInData = req['user'];
 
-      const signUpResponse: ISignUpResponse = await this.authService.signUp(userSession, signUpDto);
+      // const signUpResponse: ISignUpResponse = await this.authService.signUp(userSession, signUpDto);
 
-      return res.status(200).json({
-        ...signUpResponse
-      });
+      // return res.status(200).json({
+      //   ...signUpResponse
+      // });
     } catch (error: any) {
       if (error instanceof UnauthorizedException) {
         return res.status(401).json({

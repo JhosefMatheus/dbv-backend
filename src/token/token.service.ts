@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UserData } from "src/types";
+import { UserSignInData } from "src/types";
 
 @Injectable()
 export class TokenService {
@@ -18,9 +18,9 @@ export class TokenService {
     }
   }
 
-  async decodeToken(token: string): Promise<UserData> {
+  async decodeToken(token: string): Promise<UserSignInData> {
     try {
-      const payload: UserData = await this.jwtService.verifyAsync(token);
+      const payload: UserSignInData = await this.jwtService.verifyAsync(token);
 
       return payload;
     } catch (error: any) {

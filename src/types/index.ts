@@ -1,6 +1,6 @@
-import { Role } from "../entities";
+import { Role } from "@prisma/client";
 
-export type UserData = {
+export type UserSignInData = {
   id: number;
   name: string;
   email: string;
