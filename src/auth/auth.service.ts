@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { SignInDto, SignUpDto } from "./dto";
 import { ISignInResponse, ISignUpResponse } from "./response";
 import { TokenService } from "src/token/token.service";
@@ -7,12 +7,14 @@ import { UserSignInData } from "src/types";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Role, User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { RoleService } from "src/role/role.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly tokenService: TokenService,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly roleService: RoleService
   ) { }
 
   async signIn(signInDto: SignInDto): Promise<ISignInResponse> {
@@ -65,52 +67,59 @@ export class AuthService {
     }
   }
 
-  async signUp(userFromSession: UserSignInData, signUpDto: SignUpDto): Promise<void> {
+  async signUp(userFromSession: UserSignInData, signUpDto: SignUpDto): Promise<ISignUpResponse> {
+    let roleFromNewUser: Role;
+
     try {
-      // const roleFromNewUser: Role = await this.roleRepository.findOneOrFail({
-      //   where: {
-      //     id: signUpDto.roleId,
-      //     deletedAt: null
-      //   }
-      // });
-
-      // const roleGrantFlag: boolean = await this.roleGrantRepository.exist({
-      //   where: {
-      //     roleGrantingId: userFromSession.role.id,
-      //     roleGrantedId: roleFromNewUser.id
-      //   }
-      // });
-
-      // if (!roleGrantFlag) {
-      //   throw new UnauthorizedException(`Você não tem permissão para cadastrar um usuário com o cargo ${roleFromNewUser.name}.`);
-      // }
-
-      // const hashedPassword: string = hashedText(signUpDto.password);
-
-      // await queryRunner.manager.insert(User, {
-      //   name: signUpDto.name,
-      //   email: signUpDto.email,
-      //   password: hashedPassword,
-      //   roleId: signUpDto.roleId
-      // });
-
-      // await queryRunner.commitTransaction();
-
-      // return {
-      //   message: "Usuário cadastrado com sucesso."
-      // }
+      roleFromNewUser = await this.roleService.getRoleById(signUpDto.roleId);
     } catch (error: any) {
-      // await queryRunner.rollbackTransaction();
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw new ForbiddenException("O cargo selecionado não existe.");
+        }
+      }
+      
+      throw error;
+    }
 
-      // if (error instanceof QueryFailedError) {
-      //   if (error.driverError.code === 'ER_DUP_ENTRY') {
-      //     throw new UnauthorizedException("E-mail já cadastrado.");
-      //   }
-      // }
+    try {
+      const canGrant: boolean = await this.roleService.roleCanGrant(userFromSession.role.id, roleFromNewUser.id);
+
+      console.log(canGrant)
+
+      if (!canGrant) {
+        throw new ForbiddenException("Você não tem permissão para cadastrar um usuário com esse cargo.");
+      }
+
+    } catch (error: any) {
+      throw error;
+    }
+
+    try {
+      const hashedPassword: string = hashedText(signUpDto.password);
+
+      await this.prismaService.$transaction([
+        this.prismaService.user.create({
+          data: {
+            name: signUpDto.name,
+            email: signUpDto.email,
+            password: hashedPassword,
+            roleId: signUpDto.roleId
+          }
+        })
+      ]);
+
+      return {
+        message: "Usuário cadastrado com sucesso."
+      }
+    } catch (error: any) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          throw new ForbiddenException("Já existe um usuário cadastrado com esse e-mail.");
+        }
+      }
 
       throw error;
-    } finally {
-      // await queryRunner.release();
     }
   }
 }

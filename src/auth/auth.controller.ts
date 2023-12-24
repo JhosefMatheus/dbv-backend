@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, ForbiddenException, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Response, Request } from "express";
 import { SignInDto, SignUpDto } from "./dto";
 import { AuthService } from "./auth.service";
@@ -47,14 +47,14 @@ export class AuthController {
     try {
       const userSession: UserSignInData = req['user'];
 
-      // const signUpResponse: ISignUpResponse = await this.authService.signUp(userSession, signUpDto);
+      const signUpResponse: ISignUpResponse = await this.authService.signUp(userSession, signUpDto);
 
-      // return res.status(200).json({
-      //   ...signUpResponse
-      // });
+      return res.status(200).json({
+        ...signUpResponse
+      });
     } catch (error: any) {
-      if (error instanceof UnauthorizedException) {
-        return res.status(401).json({
+      if (error instanceof ForbiddenException) {
+        return res.status(403).json({
           message: error.message
         });
       }

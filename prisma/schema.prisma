@@ -12,13 +12,16 @@ datasource db {
 
 model Role {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String   @unique
   description String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
+  deletedAt   DateTime?
 
   users     User[]
   endpoints RoleEndpoint[]
+  roleGrantings RoleGrant[] @relation("role_granting")
+  roleGranteds  RoleGrant[] @relation("role_granted")
 
   @@map("role")
 }
@@ -30,7 +33,7 @@ model User {
   name      String
   password  String
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime ?
   deletedAt DateTime?
 
   role Role @relation(fields: [roleId], references: [id])
@@ -40,13 +43,15 @@ model User {
 
 model Endpoint {
   id          Int      @id @default(autoincrement())
-  name        String
+  url        String
+  method      String
   description String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   roles RoleEndpoint[]
 
+  @@unique([url, method])
   @@map("endpoint")
 }
 
@@ -54,11 +59,22 @@ model RoleEndpoint {
   roleId     Int      @map("role_id")
   endpointId Int      @map("endpoint_id")
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime?
 
   role     Role     @relation(fields: [roleId], references: [id])
   endpoint Endpoint @relation(fields: [endpointId], references: [id])
 
   @@id([roleId, endpointId])
   @@map("role_endpoint")
+}
+
+model RoleGrant {
+  roleGrantingId Int      @map("role_granting_id")
+  roleGrantedId  Int      @map("role_granted_id")
+
+  roleGranting Role @relation(fields: [roleGrantingId], references: [id], name: "role_granting")
+  roleGranted  Role @relation(fields: [roleGrantedId], references: [id], name: "role_granted")
+
+  @@id([roleGrantingId, roleGrantedId])
+  @@map("role_grant")
 }
