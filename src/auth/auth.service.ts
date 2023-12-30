@@ -24,8 +24,7 @@ export class AuthService {
       const user: User & { role: Role } = await this.prismaService.user.findFirstOrThrow({
         where: {
           email: signInDto.email,
-          password: hashedPassword,
-          deletedAt: null
+          password: hashedPassword
         },
         include: {
           role: true
@@ -38,8 +37,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        deletedAt: user.deletedAt
+        updatedAt: user.updatedAt
       }
 
       const token: string = await this.tokenService.generateToken(payload);
@@ -53,8 +51,7 @@ export class AuthService {
           email: user.email,
           role: user.role,
           createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-          deletedAt: user.deletedAt
+          updatedAt: user.updatedAt
         }
       }
     } catch (error: any) {

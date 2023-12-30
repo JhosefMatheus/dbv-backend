@@ -11,17 +11,16 @@ datasource db {
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
   description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime?
-  deletedAt   DateTime?
+  createdAt   DateTime @map("created_at")  @default(now())
+  updatedAt   DateTime? @map("updated_at")
 
-  users     User[]
-  endpoints RoleEndpoint[]
-  roleGrantings RoleGrant[] @relation("role_granting")
-  roleGranteds  RoleGrant[] @relation("role_granted")
+  users         User[]
+  endpoints     RoleEndpoint[]
+  roleGrantings RoleGrant[]    @relation("role_granting")
+  roleGranteds  RoleGrant[]    @relation("role_granted")
 
   @@map("role")
 }
@@ -29,12 +28,14 @@ model Role {
 model User {
   id        Int       @id @default(autoincrement())
   roleId    Int       @map("role_id")
-  email     String    @unique
   name      String
+  email     String    @unique
   password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime ?
-  deletedAt DateTime?
+  createdAt DateTime  @map("created_at") @default(now())
+  updatedAt DateTime? @map("updated_at")
+
+  advisorUnities UnityAdvisor[]
+  associateAdvisorUnities UnityAssociateAdvisor[]
 
   role Role @relation(fields: [roleId], references: [id])
 
@@ -42,12 +43,12 @@ model User {
 }
 
 model Endpoint {
-  id          Int      @id @default(autoincrement())
-  url        String
+  id          Int       @id @default(autoincrement())
+  url         String
   method      String
   description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime?
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime? @map("updated_at")
 
   roles RoleEndpoint[]
 
@@ -56,10 +57,10 @@ model Endpoint {
 }
 
 model RoleEndpoint {
-  roleId     Int      @map("role_id")
-  endpointId Int      @map("endpoint_id")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime?
+  roleId     Int       @map("role_id")
+  endpointId Int       @map("endpoint_id")
+  createdAt  DateTime  @map("created_at") @default(now())
+  updatedAt  DateTime? @map("updated_at")
 
   role     Role     @relation(fields: [roleId], references: [id])
   endpoint Endpoint @relation(fields: [endpointId], references: [id])
@@ -69,12 +70,50 @@ model RoleEndpoint {
 }
 
 model RoleGrant {
-  roleGrantingId Int      @map("role_granting_id")
-  roleGrantedId  Int      @map("role_granted_id")
+  roleGrantingId Int @map("role_granting_id")
+  roleGrantedId  Int @map("role_granted_id")
 
   roleGranting Role @relation(fields: [roleGrantingId], references: [id], name: "role_granting")
   roleGranted  Role @relation(fields: [roleGrantedId], references: [id], name: "role_granted")
 
   @@id([roleGrantingId, roleGrantedId])
   @@map("role_grant")
+}
+
+model Unity {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @map("created_at") @default(now())
+  updatedAt DateTime? @map("updated_at")
+
+  advisors UnityAdvisor[]
+  associateAdvisors UnityAssociateAdvisor[]
+
+  @@map("unity")
+}
+
+model UnityAdvisor {
+  unityId    Int       @map("unity_id")
+  advisorId  Int       @map("advisor_id")
+  createdAt  DateTime  @map("created_at") @default(now())
+  updatedAt  DateTime? @map("updated_at")
+
+  unity   Unity   @relation(fields: [unityId], references: [id])
+  advisor User @relation(fields: [advisorId], references: [id])
+
+  @@id([unityId, advisorId])
+  @@map("unity_advisor")
+}
+
+model UnityAssociateAdvisor {
+  unityId    Int       @map("unity_id")
+  associateAdvisorId  Int       @map("associate_advisor_id")
+  createdAt  DateTime  @map("created_at") @default(now())
+  updatedAt  DateTime? @map("updated_at")
+
+  unity   Unity   @relation(fields: [unityId], references: [id])
+  associateAdvisor User @relation(fields: [associateAdvisorId], references: [id])
+
+  @@id([unityId, associateAdvisorId])
+  @@map("unity_associate_advisor")
 }

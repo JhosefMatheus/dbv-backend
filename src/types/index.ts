@@ -7,5 +7,4 @@ export type UserSignInData = {
   role: Role;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date;
 }

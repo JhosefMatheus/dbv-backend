@@ -12,8 +12,7 @@ export class RoleService {
     try {
       const role: Role = await this.prismaService.role.findFirstOrThrow({
         where: {
-          id,
-          deletedAt: null
+          id
         }
       });
 
@@ -30,8 +29,7 @@ export class RoleService {
 
       const roleGranting: Role & { roleGrantings: Array<{ roleGranted: Role }> } = await this.prismaService.role.findFirstOrThrow({
         where: {
-          id: roleGrantingId,
-          deletedAt: null
+          id: roleGrantingId
         },
         include: {
           roleGrantings: {

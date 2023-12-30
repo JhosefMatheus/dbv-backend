@@ -24,8 +24,7 @@ export class JwtGuard implements CanActivate {
 
       const user: UserSignInData = await this.prismaService.user.findFirstOrThrow({
         where: {
-          id: tokenPayload.id,
-          deletedAt: null
+          id: tokenPayload.id
         },
         select: {
           id: true,
@@ -33,7 +32,6 @@ export class JwtGuard implements CanActivate {
           email: true,
           createdAt: true,
           updatedAt: true,
-          deletedAt: true,
           role: true
         }
       });
