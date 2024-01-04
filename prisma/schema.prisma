@@ -14,13 +14,14 @@ model Role {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   description String
-  createdAt   DateTime @map("created_at")  @default(now())
+  createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @map("updated_at")
 
-  users         User[]
-  endpoints     RoleEndpoint[]
-  roleGrantings RoleGrant[]    @relation("role_granting")
-  roleGranteds  RoleGrant[]    @relation("role_granted")
+  users           User[]
+  endpoints       RoleEndpoint[]
+  roleGrantings   RoleGrant[]         @relation("role_granting")
+  roleGranteds    RoleGrant[]         @relation("role_granted")
+  functionalities RoleFunctionality[]
 
   @@map("role")
 }
@@ -31,10 +32,10 @@ model User {
   name      String
   email     String    @unique
   password  String
-  createdAt DateTime  @map("created_at") @default(now())
+  createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  advisorUnities UnityAdvisor[]
+  advisorUnities          UnityAdvisor[]
   associateAdvisorUnities UnityAssociateAdvisor[]
 
   role Role @relation(fields: [roleId], references: [id])
@@ -47,7 +48,7 @@ model Endpoint {
   url         String
   method      String
   description String
-  createdAt   DateTime @map("created_at") @default(now())
+  createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @map("updated_at")
 
   roles RoleEndpoint[]
@@ -59,7 +60,7 @@ model Endpoint {
 model RoleEndpoint {
   roleId     Int       @map("role_id")
   endpointId Int       @map("endpoint_id")
-  createdAt  DateTime  @map("created_at") @default(now())
+  createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime? @map("updated_at")
 
   role     Role     @relation(fields: [roleId], references: [id])
@@ -83,37 +84,62 @@ model RoleGrant {
 model Unity {
   id        Int       @id @default(autoincrement())
   name      String    @unique
-  createdAt DateTime  @map("created_at") @default(now())
+  createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  advisors UnityAdvisor[]
+  advisors          UnityAdvisor[]
   associateAdvisors UnityAssociateAdvisor[]
 
   @@map("unity")
 }
 
 model UnityAdvisor {
-  unityId    Int       @map("unity_id")
-  advisorId  Int       @map("advisor_id")
-  createdAt  DateTime  @map("created_at") @default(now())
-  updatedAt  DateTime? @map("updated_at")
+  unityId   Int       @map("unity_id")
+  advisorId Int       @map("advisor_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
 
-  unity   Unity   @relation(fields: [unityId], references: [id])
-  advisor User @relation(fields: [advisorId], references: [id])
+  unity   Unity @relation(fields: [unityId], references: [id])
+  advisor User  @relation(fields: [advisorId], references: [id])
 
   @@id([unityId, advisorId])
   @@map("unity_advisor")
 }
 
 model UnityAssociateAdvisor {
-  unityId    Int       @map("unity_id")
-  associateAdvisorId  Int       @map("associate_advisor_id")
-  createdAt  DateTime  @map("created_at") @default(now())
-  updatedAt  DateTime? @map("updated_at")
+  unityId            Int       @map("unity_id")
+  associateAdvisorId Int       @map("associate_advisor_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime? @map("updated_at")
 
-  unity   Unity   @relation(fields: [unityId], references: [id])
-  associateAdvisor User @relation(fields: [associateAdvisorId], references: [id])
+  unity            Unity @relation(fields: [unityId], references: [id])
+  associateAdvisor User  @relation(fields: [associateAdvisorId], references: [id])
 
   @@id([unityId, associateAdvisorId])
   @@map("unity_associate_advisor")
+}
+
+model Functionality {
+  id          Int                 @id @default(autoincrement())
+  name        String              @unique
+  url         String              @unique
+  description String
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime?           @map("updated_at")
+  roles       RoleFunctionality[]
+
+  @@map("functionality")
+}
+
+model RoleFunctionality {
+  roleId          Int       @map("role_id")
+  functionalityId Int       @map("functionality_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @map("updated_at")
+
+  role          Role          @relation(fields: [roleId], references: [id])
+  functionality Functionality @relation(fields: [functionalityId], references: [id])
+
+  @@id([roleId, functionalityId])
+  @@map("role_functionality")
 }

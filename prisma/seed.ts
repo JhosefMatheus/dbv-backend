@@ -1,4 +1,4 @@
-import { Endpoint, PrismaClient, Role } from "@prisma/client";
+import { Endpoint, Functionality, PrismaClient, Role } from "@prisma/client";
 import * as CryptoJS from 'crypto-js';
 
 const prisma = new PrismaClient();
@@ -56,6 +56,117 @@ async function createRoles(): Promise<void> {
   ]);
 }
 
+async function createFunctionalities(): Promise<void> {
+  await prisma.$transaction([
+    prisma.functionality.createMany({
+      data: [
+        {
+          name: "Unidades",
+          url: "/unities",
+          description: "Página responsável por gerenciar as unidades do clube."
+        }
+      ]
+    })
+  ]);
+}
+
+async function linkRoleAndFunctionalities(): Promise<void> {
+  const unitiesFunctionality: Functionality = await prisma.functionality.findFirstOrThrow({
+    where: {
+      name: "Unidades"
+    }
+  });
+
+  const pathfinderRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Desbravador(a)"
+    }
+  });
+
+  const associateAdivisorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Conselheiro(a) Associado(a)"
+    }
+  });
+
+  const advisorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Conselheiro(a)"
+    }
+  });
+
+  const associateInstructorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Instrutor(a) Associado(a)"
+    }
+  });
+
+  const instructorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Instrutor(a)"
+    }
+  });
+
+  const associateTreasurerRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Tesoureiro(a) Associado(a)"
+    }
+  });
+
+  const treasurerRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Tesoureiro(a)"
+    }
+  });
+
+  const associateSecretaryRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Secretário(a) Associado(a)"
+    }
+  });
+
+  const secretaryRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Secretário(a)"
+    }
+  });
+
+  const associateDirectorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Diretor(a) Associado(a)"
+    }
+  });
+
+  const directorRole: Role = await prisma.role.findFirstOrThrow({
+    where: {
+      name: "Diretor(a)"
+    }
+  });
+
+  await prisma.$transaction([
+    prisma.roleFunctionality.createMany({
+      data: [
+        {
+          roleId: directorRole.id,
+          functionalityId: unitiesFunctionality.id
+        },
+        {
+          roleId: associateDirectorRole.id,
+          functionalityId: unitiesFunctionality.id
+        },
+        {
+          roleId: secretaryRole.id,
+          functionalityId: unitiesFunctionality.id
+        },
+        {
+          roleId: associateSecretaryRole.id,
+          functionalityId: unitiesFunctionality.id
+        }
+      ]
+    })
+  ]);
+}
+
 async function createUsers(): Promise<void> {
   await prisma.$transaction([
     prisma.user.create({
@@ -75,12 +186,14 @@ async function createUsers(): Promise<void> {
 
 async function createEndpoints(): Promise<void> {
   await prisma.$transaction([
-    prisma.endpoint.create({
-      data: {
-        url: "/auth/sign-up",
-        method: "POST",
-        description: "Criar um novo usuário no sistema."
-      }
+    prisma.endpoint.createMany({
+      data: [
+        {
+          url: "/auth/sign-up",
+          method: "POST",
+          description: "Criar um novo usuário no sistema."
+        }
+      ]
     })
   ]);
 }
@@ -414,6 +527,8 @@ async function createRoleGrants(): Promise<void> {
 
 async function main() {
   await createRoles();
+  await createFunctionalities();
+  await linkRoleAndFunctionalities();
   await createUsers();
   await createEndpoints();
   await linkRoleAndEndpoint();
